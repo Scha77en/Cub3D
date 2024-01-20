@@ -6,7 +6,7 @@
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 14:43:58 by aouhbi            #+#    #+#             */
-/*   Updated: 2024/01/20 01:57:43 by aouhbi           ###   ########.fr       */
+/*   Updated: 2024/01/20 18:46:46 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,13 @@
 int	main(int argc, char	*argv[])
 {
 	size_t		i;
-	t_data		data;
+	t_data		*data;
 
-	data.floor_data = malloc(sizeof(t_floor));
-	data.ceiling_data = malloc(sizeof(t_ceiling));
-	data.map = NULL;
-	set_struct(&data);
+	data = malloc(sizeof(t_data));
+	data->floor_data = malloc(sizeof(t_floor));
+	data->ceiling_data = malloc(sizeof(t_ceiling));
+	data->map = NULL;
+	set_struct(data);
 	i = 0;
 	if (argc != 2)
 		write(2, "Error: Wrong Number Of Arguments!\n", 34);
@@ -29,7 +30,7 @@ int	main(int argc, char	*argv[])
 		i = ft_strlen(argv[1]) - 1;
 		if (argv[1][i] == 'b' && argv[1][i - 1] == 'u' && argv[1][i - 2] == 'c'
 				&& argv[1][i - 3] == '.')
-			parce_the_file(argv, &data);
+			parce_the_file(argv, data);
 		else
 			write (2, "Error: Wrong File Format. Format must be '*.cub'\n", 49);
 	}
@@ -66,7 +67,9 @@ void	parce_the_file(char	**f_name, t_data *data)
 	int		fd;
 	char	*line;
 	int		v;
+	int		size;
 
+	size = 0;
 	v = 0;
 	fd = open(f_name[1], O_RDONLY);
 	if (fd == -1)
@@ -74,7 +77,6 @@ void	parce_the_file(char	**f_name, t_data *data)
 	while (1)
 	{
 		line = get_next_line(fd);
-		// printf("line = %s\n", line);
 		if (line == NULL)
 			break ;
 		if (line[0] == '\n')
@@ -83,13 +85,18 @@ void	parce_the_file(char	**f_name, t_data *data)
 			continue ;
 		}
 		v = check_line(line, &data);
-		free(line);
 		if (v == 1)
 			break ;
+		free(line);
 	}
+	printf("line = %s\n", line);
+	printf("v = %d\n", v);
+	// size = two_d_size(f_name[1]);
+	printf("size = %d\n", size);
 	if (v == 1)
-		map_parcing(fd, line, &data);
+		map_parcing(fd, size, line, &data);
 	print_data(data);
+	print_map(&data);
 }
 
 int	all_is_set(t_data *data)
@@ -97,9 +104,9 @@ int	all_is_set(t_data *data)
 	if (data->north_fd != -1 && data->south_fd != -1 && data->west_fd != -1 && data->east_fd != -1
 		&& data->floor_data->B_f != 1 && data->floor_data->G_f != -1 && data->floor_data->B_f != 1 && data->ceiling_data->B_c != 1
 		&& data->ceiling_data->G_c != -1 && data->ceiling_data->B_c != 1)
-		return (1);
-	else
 		return (0);
+	else
+		return (1);
 }
 
 int	check_line(char *line, t_data **data)
@@ -120,9 +127,9 @@ int	check_line(char *line, t_data **data)
 	else if (line[i] == 'C' && (line[i + 1] == ' ' || line[i + 1] == '\t'))
 		return (ceiling_color_check(line, data), 0);
 	else if (all_is_set(*data))
-		return (1);
+		return (error_out("Missing data\n", 0), 1);
 	else
-		return (0);
+		return (1);
 }
 
 void	error_out(char *str, int v)
@@ -209,7 +216,6 @@ void	floor_color_check(char *line, t_data **data)
 	char	**f_line;
 	char	**colors;
 
-	puts("floor_color_check");
 	if ((*data)->floor_data->R_f != -1 || (*data)->floor_data->G_f != -1 || (*data)->floor_data->B_f != -1)
 		error_out("Duplicated identifier 'F'\n", 0);
 	f_line = ft_split(line, ' ');
@@ -218,21 +224,16 @@ void	floor_color_check(char *line, t_data **data)
 	colors = ft_split(f_line[1], ',');
 	if (colors == NULL || colors[3] != NULL)
 		error_out("invalid file data\n", 0);
-	else
-	{
-		if (ft_atoi(colors[0]) >= 0 && ft_atoi(colors[0]) <= 255)
-			(*data)->floor_data->R_f = ft_atoi(colors[0]);
-		else
-			error_out("Floor Red color is out of range", 0);
-		if (ft_atoi(colors[1]) >= 0 && ft_atoi(colors[1]) <= 255)
-			(*data)->floor_data->G_f = ft_atoi(colors[1]);
-		else
-			error_out("Floor Green color is out of range", 0);
-		if (ft_atoi(colors[2]) >= 0 && ft_atoi(colors[2]) <= 255)
-			(*data)->floor_data->B_f = ft_atoi(colors[2]);
-		else
-			error_out("Floor Blue color is out of range", 0);
-	}
+	if (colors[0] == NULL || colors[1] == NULL || colors[2] == NULL)
+		error_out("invalid Floor data\n", 0);
+	if (number_check(colors[0]) == 0 || number_check(colors[1]) == 0 || number_check(colors[2]) == 0)
+		error_out("invalid Floor data\n", 0);
+	(*data)->floor_data->R_f = ft_atoi(colors[0]);
+	(*data)->floor_data->G_f = ft_atoi(colors[1]);
+	(*data)->floor_data->B_f = ft_atoi(colors[2]);
+	printf("R_f = %d\n", (*data)->floor_data->R_f);
+	printf("G_f = %d\n", (*data)->floor_data->G_f);
+	printf("B_f = %d\n", (*data)->floor_data->B_f);
 }
 
 void	ceiling_color_check(char *line, t_data **data)
@@ -240,7 +241,6 @@ void	ceiling_color_check(char *line, t_data **data)
 	char	**c_line;
 	char	**colors;
 
-	puts("ceiling_color_check");
 	if ((*data)->ceiling_data->R_c != -1 || (*data)->ceiling_data->G_c != -1 || (*data)->ceiling_data->B_c != -1)
 		error_out("Duplicated identifier 'C'\n", 0);
 	c_line = ft_split(line, ' ');
@@ -249,70 +249,26 @@ void	ceiling_color_check(char *line, t_data **data)
 	colors = ft_split(c_line[1], ',');
 	if (colors == NULL || colors[3] != NULL)
 		error_out("invalid file data\n", 0);
-	else
-	{
-		if (ft_atoi(colors[0]) >= 0 && ft_atoi(colors[0]) <= 255)
-			(*data)->ceiling_data->R_c = ft_atoi(colors[0]);
-		else
-			error_out("Ceiling Red color is out of range", 0);
-		if (ft_atoi(colors[1]) >= 0 && ft_atoi(colors[1]) <= 255)
-			(*data)->ceiling_data->G_c = ft_atoi(colors[1]);
-		else
-			error_out("Ceiling Green color is out of range", 0);
-		if (ft_atoi(colors[2]) >= 0 && ft_atoi(colors[2]) <= 255)
-			(*data)->ceiling_data->B_c = ft_atoi(colors[2]);
-		else
-			error_out("Ceiling Blue color is out of range", 0);
-	}
+	if (colors[0] == NULL || colors[1] == NULL || colors[2] == NULL)
+		error_out("invalid Ceiling data\n", 0);
+	if (number_check(colors[0]) == 0 || number_check(colors[1]) == 0 || number_check(colors[2]) == 0)
+		error_out("invalid Ceiling data\n", 0);
+	(*data)->ceiling_data->R_c = ft_atoi(colors[0]);
+	(*data)->ceiling_data->G_c = ft_atoi(colors[1]);
+	(*data)->ceiling_data->B_c = ft_atoi(colors[2]);
+	printf("R_c = %d\n", (*data)->ceiling_data->R_c);
+	printf("G_c = %d\n", (*data)->ceiling_data->G_c);
+	printf("B_c = %d\n", (*data)->ceiling_data->B_c);
 }
 
-void	map_parcing(int fd, char *line, t_data **data)
-{
-	int		i;
-	int		j;
-	char	**map;
-
-	return ;
-	i = 0;
-	j = 0;
-	map = malloc(sizeof(char *) * 100);
-	if (map == NULL)
-		error_out("malloc", 1);
-	while (1)
-	{
-		line = get_next_line(fd);
-		if (line == NULL)
-			break ;
-		if (line[0] == '\n')
-			continue ;
-		map[i] = malloc(sizeof(char) * 100);
-		if (map[i] == NULL)
-			error_out("malloc", 1);
-		while (line[j])
-		{
-			if (line[j] == '1' || line[j] == '0' || line[j] == '2')
-				map[i][j] = line[j];
-			else
-				error_out("invalid map data\n", 0);
-			j++;
-		}
-		map[i][j] = '\0';
-		i++;
-		j = 0;
-		free(line);
-	}
-	map[i] = NULL;
-	(*data)->map = map;
-}
-
-void	print_map(t_data *data)
+void	print_map(t_data **data)
 {
 	int		i;
 
 	i = 0;
-	while (data->map[i])
+	while ((*data)->map[i])
 	{
-		printf("%s\n", data->map[i]);
+		printf("map[%d] == %s\n", i, (*data)->map[i]);
 		i++;
 	}
 }

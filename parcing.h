@@ -6,7 +6,7 @@
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 14:44:07 by aouhbi            #+#    #+#             */
-/*   Updated: 2024/01/20 01:33:12 by aouhbi           ###   ########.fr       */
+/*   Updated: 2024/01/20 18:37:03 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,10 @@ typedef struct s_ceiling
 size_t	ft_strlen(char *str);
 char	**ft_split(char *s, char c);
 int		ft_atoi(char *str);
+int		ft_isdigit(int c);
+size_t	ft_strlcpy(char *dst, char *src, size_t dstsize);
+char	*ft_strdup(char *s1);
+void	*ft_memcpy(void *dst, void *src, size_t n);
 
 void	set_struct(t_data *data);
 void	parce_the_file(char	**f_name, t_data *data);
@@ -66,11 +70,14 @@ void	west_check(char *line, t_data **data);
 void	east_check(char *line, t_data **data);
 void	floor_color_check(char *line, t_data **data);
 void	ceiling_color_check(char *line, t_data **data);
-void	map_parcing(int fd, char *line, t_data **data);
-void	print_map(t_data *data);
+void	map_parcing(int fd, int size, char *line, t_data **data);
+void	print_map(t_data **data);
 void	free_data(t_data *data);
 void	free_all(t_data *data);
 void	print_data(t_data *data);
+int		number_check(char *str);
+void	parce_and_save_map_line(char *line, t_data **data, int v);
+int		two_d_size(char *f_name);
 
 
 #endif

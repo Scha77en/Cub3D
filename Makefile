@@ -1,4 +1,4 @@
-SRC = parcing.c get_next_line.c get_next_line_utils.c ft_split.c
+SRC = parcing.c get_next_line.c get_next_line_utils.c ft_split.c map_parcing.c
 
 OBJ = ${SRC:%.c=%.o}
 
