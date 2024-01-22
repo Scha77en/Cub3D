@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/06 02:03:10 by aouhbi            #+#    #+#             */
-/*   Updated: 2024/01/20 01:48:28 by aouhbi           ###   ########.fr       */
+/*   Created: 2022/12/06 06:18:34 by aouhbi            #+#    #+#             */
+/*   Updated: 2024/01/21 08:47:04 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	*get_the_line(char *save)
 		return (NULL);
 	while (save[i] && save[i] != '\n')
 		i++;
-	line = malloc(i + 2);
+	line = (char *) malloc(sizeof(*line) * (i + 2));
 	if (!line)
 		return (NULL);
 	i = -1;
@@ -47,10 +47,13 @@ char	*clean_save(char *save)
 	while (save[i] && save[i] != '\n')
 		i++;
 	if (!save[i])
-		return (free(save), NULL);
-	new_save = malloc(ft_strlen(save) - i + 1);
+	{
+		free(save);
+		return (NULL);
+	}
+	new_save = (char *) malloc(sizeof(*new_save) * (ft_strlen(save) - i + 1));
 	if (!new_save)
-		return (free(new_save), NULL);
+		return (NULL);
 	i++;
 	j = 0;
 	while (save[i])
@@ -62,10 +65,10 @@ char	*clean_save(char *save)
 
 char	*read_and_save(int fd, char *save)
 {
-	char		*buff;
-	ssize_t		readed;
+	char	*buff;
+	int		readed;
 
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buff = malloc((BUFFER_SIZE + 1) * sizeof(*buff));
 	if (!buff)
 		return (NULL);
 	readed = 1;
@@ -88,14 +91,34 @@ char	*read_and_save(int fd, char *save)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*save;
+	static char	*save[OPEN_MAX];
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > OPEN_MAX)
 		return (NULL);
-	save = read_and_save(fd, save);
-	if (!save)
+	save[fd] = read_and_save(fd, save[fd]);
+	if (!save[fd])
 		return (NULL);
-	line = get_the_line(save);
-	save = clean_save(save);
+	line = get_the_line(save[fd]);
+	save[fd] = clean_save(save[fd]);
 	return (line);
 }
+
+// int	main(void)
+// {
+// 	int		fd;
+// 	int		fd2;
+
+// 	fd = open("test.txt", O_RDONLY);
+// 	fd2 = open("test2.txt", O_RDONLY);
+
+// 	printf("%s", get_next_line(fd));
+// 	printf("%s", get_next_line(fd2));
+// 	printf("%s", get_next_line(fd));
+// 	printf("%s", get_next_line(fd2));
+// 	printf("%s", get_next_line(fd));
+// 	printf("%s", get_next_line(fd2));
+
+// 	close(fd);
+// 	close(fd2);
+// 	return (0);
+// }

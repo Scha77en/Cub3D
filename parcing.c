@@ -6,7 +6,7 @@
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 14:43:58 by aouhbi            #+#    #+#             */
-/*   Updated: 2024/01/20 18:46:46 by aouhbi           ###   ########.fr       */
+/*   Updated: 2024/01/22 10:41:21 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ size_t	ft_strlen(char *str)
 {
 	int		i;
 
+	if (!str)
+		return (0);
 	i = 0;
 	while (str[i])
 		i++;
@@ -62,14 +64,18 @@ void	set_struct(t_data *data)
 
 // file_parcing
 
+// close the file descriptors here;
+
 void	parce_the_file(char	**f_name, t_data *data)
 {
 	int		fd;
 	char	*line;
 	int		v;
 	int		size;
+	size_t 	length;
 
-	size = 0;
+	// size = 0;
+	size = two_d_size(f_name[1], &length);
 	v = 0;
 	fd = open(f_name[1], O_RDONLY);
 	if (fd == -1)
@@ -77,6 +83,7 @@ void	parce_the_file(char	**f_name, t_data *data)
 	while (1)
 	{
 		line = get_next_line(fd);
+		// printf("line = %s\n", line);
 		if (line == NULL)
 			break ;
 		if (line[0] == '\n')
@@ -87,20 +94,19 @@ void	parce_the_file(char	**f_name, t_data *data)
 		v = check_line(line, &data);
 		if (v == 1)
 			break ;
-		free(line);
+		// free(line);
 	}
-	printf("line = %s\n", line);
-	printf("v = %d\n", v);
-	// size = two_d_size(f_name[1]);
-	printf("size = %d\n", size);
+	// printf("v = %d\n", v);
+	// printf("size = %d\n", size);
 	if (v == 1)
-		map_parcing(fd, size, line, &data);
-	print_data(data);
-	print_map(&data);
+		map_parcing(fd, size, line, &data, length);
+	// print_data(data);
+	// print_map(&data);
 }
 
 int	all_is_set(t_data *data)
 {
+	print_data(data);
 	if (data->north_fd != -1 && data->south_fd != -1 && data->west_fd != -1 && data->east_fd != -1
 		&& data->floor_data->B_f != 1 && data->floor_data->G_f != -1 && data->floor_data->B_f != 1 && data->ceiling_data->B_c != 1
 		&& data->ceiling_data->G_c != -1 && data->ceiling_data->B_c != 1)
@@ -114,13 +120,15 @@ int	check_line(char *line, t_data **data)
 	int		i;
 
 	i = 0;
-	if (line[i] == 'N' && line[i + 1] == 'O' && (line[2] == ' ' || line[2] == '\t'))
+	while (line[i] == ' ' || line[i] == '\t')
+		i++;
+	if (line[i] == 'N' && line[i + 1] == 'O' && (line[i + 2] == ' ' || line[i + 2] == '\t'))
 		return (north_check(line, data), 0);
-	else if (line[i] == 'S' && line[i + 1] == 'O' && (line[2] == ' ' || line[2] == '\t'))
+	else if (line[i] == 'S' && line[i + 1] == 'O' && (line[i + 2] == ' ' || line[i + 2] == '\t'))
 		return (south_check(line, data), 0);
-	else if (line[i] == 'W' && line[i + 1] == 'E' && (line[2] == ' ' || line[2] == '\t'))
+	else if (line[i] == 'W' && line[i + 1] == 'E' && (line[i + 2] == ' ' || line[i + 2] == '\t'))
 		return (west_check(line, data), 0);
-	else if (line[i] == 'E' && line[i + 1] == 'A' && (line[2] == ' ' || line[2] == '\t'))
+	else if (line[i] == 'E' && line[i + 1] == 'A' && (line[i + 2] == ' ' || line[i + 2] == '\t'))
 		return (east_check(line, data), 0);
 	else if (line[i] == 'F' && (line[i + 1] == ' ' || line[i + 1] == '\t'))
 		return (floor_color_check(line, data), 0);
@@ -148,6 +156,7 @@ void	north_check(char *line, t_data **data)
 
 	if ((*data)->north_fd != -1)
 		error_out("Duplicated identifier 'NO'\n", 0);
+	line = clean_tabs(line);
 	n_line = ft_split(line, ' ');
 	printf("n_line[1] = %s\n", n_line[1]);
 	n_line[1][ft_strlen(n_line[1]) - 1] = '\0';
@@ -159,6 +168,35 @@ void	north_check(char *line, t_data **data)
 	if ((*data)->north_fd == -1)
 		error_out("open", 1);
 }
+char	*clean_tabs(char *line)
+{
+	int		i;
+	int		j;
+	char	*new_line;
+
+	i = 0;
+	j = 0;
+	new_line = malloc(sizeof(char) * (ft_strlen(line) + 1));
+	if (new_line == NULL)
+		error_out("malloc", 1);
+	while (line[i])
+	{
+		if (line[i] == '\t')
+		{
+			new_line[j] = ' ';
+			j++;
+		}
+		else
+		{
+			new_line[j] = line[i];
+			j++;
+		}
+		i++;
+	}
+	new_line[j] = '\0';
+	free(line);
+	return (new_line);
+}
 
 void	south_check(char *line, t_data **data)
 {
@@ -166,6 +204,7 @@ void	south_check(char *line, t_data **data)
 
 	if ((*data)->south_fd != -1)
 		error_out("Duplicated identifier 'SO'\n", 0);
+	line = clean_tabs(line);
 	s_line = ft_split(line, ' ');
 	printf("s_line[1] = %s\n", s_line[1]);
 	s_line[1][ft_strlen(s_line[1]) - 1] = '\0';
@@ -183,6 +222,7 @@ void	west_check(char *line, t_data **data)
 
 	if ((*data)->west_fd != -1)
 		error_out("Duplicated identifier 'WE'\n", 0);
+	line = clean_tabs(line);
 	w_line = ft_split(line, ' ');
 	printf("w_line[1] = %s\n", w_line[1]);
 	w_line[1][ft_strlen(w_line[1]) - 1] = '\0';
@@ -200,6 +240,7 @@ void	east_check(char *line, t_data **data)
 
 	if ((*data)->east_fd != -1)
 		error_out("Duplicated identifier 'EA'\n", 0);
+	line = clean_tabs(line);
 	e_line = ft_split(line, ' ');
 	printf("e_line[1] = %s\n", e_line[1]);
 	e_line[1][ft_strlen(e_line[1]) - 1] = '\0';
@@ -218,6 +259,7 @@ void	floor_color_check(char *line, t_data **data)
 
 	if ((*data)->floor_data->R_f != -1 || (*data)->floor_data->G_f != -1 || (*data)->floor_data->B_f != -1)
 		error_out("Duplicated identifier 'F'\n", 0);
+	line = clean_tabs(line);
 	f_line = ft_split(line, ' ');
 	if (f_line == NULL || f_line[2] != NULL)
 		error_out("invalid file data\n", 0);
@@ -243,6 +285,7 @@ void	ceiling_color_check(char *line, t_data **data)
 
 	if ((*data)->ceiling_data->R_c != -1 || (*data)->ceiling_data->G_c != -1 || (*data)->ceiling_data->B_c != -1)
 		error_out("Duplicated identifier 'C'\n", 0);
+	line = clean_tabs(line);
 	c_line = ft_split(line, ' ');
 	if (c_line == NULL || c_line[2] != NULL)
 		error_out("invalid file data\n", 0);
@@ -310,3 +353,12 @@ void	print_data(t_data *data)
 	printf("G_c = %d\n", data->ceiling_data->G_c);
 	printf("B_c = %d\n", data->ceiling_data->B_c);
 }
+
+
+// ----------------------------------- Notes --------------------------------------
+
+// Close the file descriptor;
+
+// fill the 2d array map with ' ' according to the longest line in the map;
+
+// the F and C data can be seperated by spaces and tabs, you must handle that;

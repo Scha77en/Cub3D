@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/06 02:04:25 by aouhbi            #+#    #+#             */
-/*   Updated: 2022/12/18 13:02:00 by aouhbi           ###   ########.fr       */
+/*   Created: 2022/12/06 06:18:48 by aouhbi            #+#    #+#             */
+/*   Updated: 2022/12/18 13:02:19 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 # include <stdlib.h>
 # include <unistd.h>
@@ -27,7 +27,7 @@ char	*get_next_line(int fd);
 char	*read_and_save(int fd, char *save);
 char	*clean_save(char *save);
 char	*get_the_line(char *save);
-size_t	ft_strlen(char *s);
+size_t	ft_strlen(char *str);
 char	*ft_strchr(char *s, int c);
 char	*ft_strjoin(char *s1, char *s2);
 

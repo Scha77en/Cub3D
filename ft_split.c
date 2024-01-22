@@ -6,7 +6,7 @@
 /*   By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 23:55:42 by aouhbi            #+#    #+#             */
-/*   Updated: 2024/01/20 16:22:06 by aouhbi           ###   ########.fr       */
+/*   Updated: 2024/01/22 08:12:34 by aouhbi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,4 +187,35 @@ void	*ft_memcpy(void *dst, void *src, size_t n)
 		i++;
 	}
 	return (dst);
+}
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	int					*ptr;
+	unsigned long long	m;
+
+	m = (size * count);
+	ptr = (int *)malloc(m);
+	if (ptr)
+		ft_bzero((char *)ptr, m);
+	return (ptr);
+}
+
+void	*ft_memset(void *b, int c, size_t len)
+{
+	int	i;
+
+	i = 0;
+	while (len > 0)
+	{
+		((unsigned char *)b)[i] = (unsigned char)c;
+		len--;
+		i++;
+	}
+	return (b);
+}
+
+void	ft_bzero(void *s, size_t n)
+{
+	ft_memset(s, 0, n);
 }
