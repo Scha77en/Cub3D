@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: aouhbi <aouhbi@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/01/11 16:20:41 by zlaarous          #+#    #+#              #
-#    Updated: 2024/02/06 17:06:42 by aouhbi           ###   ########.fr        #
+#    Created: 2024/02/24 09:42:15 by aouhbi            #+#    #+#              #
+#    Updated: 2024/02/24 09:43:44 by aouhbi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -108,4 +108,4 @@ re: fclean all
 
 re_bonus: fclean_bonus bonus
 
-.PHONY: all, clean, fclean, re, bonus, clean_bonus, fclean, re_bonus, libmlx
+.PHONY: all, clean, fclean, re, bonus, clean_bonus, fclean_bonus, re_bonus, libmlx
