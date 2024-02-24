@@ -1,0 +1,11 @@
+C           22 ,    1,     1           
+SO ./texture_png/bluewall.png
+WE ./texture_png/bluewall.png
+NO ./texture_png/bluewall.png
+EA ./texture_png/bluewall.png
+F 12,45,             255
+
+1111111111  
+1N00101111
+1000011111  
+1111111111  
